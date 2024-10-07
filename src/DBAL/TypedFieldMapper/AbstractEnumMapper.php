@@ -11,6 +11,9 @@ use ReflectionProperty;
 
 class AbstractEnumMapper implements TypedFieldMapper
 {
+    /**
+     * @param array<string, mixed> $mapping
+     */
     public function validateAndComplete(array $mapping, ReflectionProperty $field): array
     {
         $type = $field->getType();

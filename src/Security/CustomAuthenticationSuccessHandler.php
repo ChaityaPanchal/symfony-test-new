@@ -29,7 +29,7 @@ class CustomAuthenticationSuccessHandler implements AuthenticationSuccessHandler
             if (!$user->getResetPasswordToken()) {
                 $uniqueToken = $this->tokenGenerator->generateToken();
                 $user->setResetPasswordToken($uniqueToken);
-                $session->set('uniqueToken',$uniqueToken);
+                $session->set('uniqueToken', $uniqueToken);
                 $this->entityManager->persist($user);
                 $this->entityManager->flush();
                 return new RedirectResponse($this->router->generate('set_password'));
