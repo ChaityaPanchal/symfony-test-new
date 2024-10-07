@@ -1,0 +1,122 @@
+{# {% extends 'base.html.twig' %}
+
+{% block title %}2FA Authentication{% endblock %}
+
+{% block body %}
+<h1>Verify Two-Factor Authentication</h1>
+<form action="{{ path('2fa_verify') }}" method="POST">
+    <input type="text" name="authCode" id="authCode" placeholder="Enter code from app">
+    <button type="submit">Verify</button>
+</form> 
+
+{% endblock %} #}
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>QR Code Generator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6" crossorigin="anonymous">
+    <style>
+        .height-100 {
+            height: 100vh;
+        }
+
+        .card {
+            width: 400px;
+            border: none;
+            height: 300px;
+            box-shadow: 0px 5px 20px 0px #d2dae3;
+            z-index: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .card h6 {
+            color: red;
+            font-size: 20px;
+        }
+
+        .inputs input {
+            width: 40px;
+            height: 40px;
+        }
+
+        .form-control:focus {
+            box-shadow: none;
+            border: 2px solid red;
+        }
+
+        .validate {
+            border-radius: 20px;
+            height: 40px;
+            background-color: red;
+            border: 1px solid red;
+            width: 140px;
+        }
+    </style>
+</head>
+<body>
+<div class="container height-100 d-flex justify-content-center align-items-center">
+    <div class="position-relative">
+        <div class="card p-2 text-center">
+            <h6>Please enter the one-time password <br> to verify your account</h6>
+            <form action="{{ path('2fa_verify') }}" method="POST">
+                <div id="authCode" class="inputs d-flex flex-row justify-content-center mt-2"> 
+                    <input class="m-2 text-center form-control rounded" type="text" maxlength="1" oninput="moveFocus(this, 'second')" />
+                    <input class="m-2 text-center form-control rounded" type="text" maxlength="1" oninput="moveFocus(this, 'third')" />
+                    <input class="m-2 text-center form-control rounded" type="text" maxlength="1" oninput="moveFocus(this, 'fourth')" />
+                    <input class="m-2 text-center form-control rounded" type="text" maxlength="1" oninput="moveFocus(this, 'fifth')" />
+                    <input class="m-2 text-center form-control rounded" type="text" maxlength="1" oninput="moveFocus(this, 'sixth')" />
+                    <input class="m-2 text-center form-control rounded" type="text" maxlength="1" oninput="moveFocus(this, 'submit')" />
+                </div>
+                <input type="hidden" name="authCode" id="authCodeInput" />
+                <div class="mt-4"> 
+                    <button type="submit" class="btn btn-danger px-4 validate">Validate</button> 
+                </div>
+                <br />
+                <a href="{{ path('qr_code_generate') }}">Back to QR Code?</a>
+            </form> 
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function(event) {
+        const inputs = document.querySelectorAll('#authCode input');
+
+        inputs.forEach(input => {
+            input.addEventListener('keydown', function(event) {
+                if (event.key === "Backspace") {
+                    this.value = '';
+                    if (this.previousElementSibling) {
+                        this.previousElementSibling.focus();
+                    }
+                } else if (event.key.length === 1 && !event.ctrlKey && !event.altKey) {
+                    this.value = event.key;
+                    if (this.nextElementSibling) {
+                        this.nextElementSibling.focus();
+                    }
+                    event.preventDefault();
+                }
+                updateAuthCode();
+            });
+        });
+
+        function updateAuthCode() {
+            const authCode = Array.from(inputs).map(input => input.value).join('');
+            document.getElementById('authCodeInput').value = authCode;
+        }
+    });
+
+    function moveFocus(currentInput, nextId) {
+        if (currentInput.value.length === currentInput.maxLength && nextId !== 'submit') {
+            document.getElementById(nextId).focus();
+        }
+    }
+</script>
+</body>
+</html>

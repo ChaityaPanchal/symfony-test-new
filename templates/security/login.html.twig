@@ -1,0 +1,29 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+
+    <div class="d-flex align-items-center py-4 bg-body-tertiary">
+        <main class="form-signin w-100 m-auto">
+            <form method="post" action="{{ path('app_login') }}">
+                <h1 class="h3 text-center mb-3 fw-normal">Login</h1>
+
+                <div class="form-floating">
+                    <input type="text" name="_username" class="form-control" id="username" value="{{ last_username }}" placeholder="email">
+                    {% if error %}
+                        <p style="color: red;">{{ error.messageKey|trans(error.messageData, 'security') }}</p>
+                    {% endif %}
+                </div>
+
+                <div class="mt-1 mb-4 form-floating">
+                    <input type="password" class="form-control" name="_password" id="password" placeholder="password"/>
+                    didn't register? <a href="{{ path('app_register') }}">click here</a>
+                </div>
+
+                <button class="btn btn-primary w-100 py-2" type="submit">Login</button>
+            </form>
+        </main>
+    </div>
+
+    {# <script src="/docs/5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script> #}
+{% endblock %}
+

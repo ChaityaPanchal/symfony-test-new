@@ -1,0 +1,9 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Registration Successful{% endblock %}
+
+{% block body %}
+    <h1>Registration Successful</h1>
+    <p>Your unique password is: <strong>{{ uniquePassword }}</strong></p>
+    <br><br> <p> <a href="{{ path('app_login') }}">Login</a></p>
+{% endblock %}
