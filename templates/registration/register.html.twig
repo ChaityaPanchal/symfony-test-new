@@ -1,7 +1,7 @@
 {# templates/registration/register.html.twig #}
 
 {% extends 'base.html.twig' %}
-
+{% block title %}Sign up Page{% endblock %}
 {% block body %}
     {% for type, messages in app.flashes %}
         {% if type == 'registration_error' %}
@@ -26,7 +26,7 @@
                 
                 <div class="mt-2 mb-4 form-floating">
                     {{ form_widget(registrationForm.email, { 'attr': {'class': 'form-control w-100'} }) }}  
-                    Already registered? <a href="{{ path('app_login') }}">click here</a>
+                    Already registered? <a href="{{ path('app_login') }}">sign in</a>
                 </div>
                 
                 <button type="submit" class="btn btn-primary w-100 py-2">Register</button>

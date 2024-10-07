@@ -38,8 +38,11 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
-        # - { path: ^/login, roles: IS_AUTHENTICATED_FULLY }
-
+        # - { path: ^/login, roles: IS_ANONYMOUS }
+        # - { path: ^/register, roles: IS_ANONYMOUS }
+        - { path: ^/welcome, roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/set-password, roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/2fa, roles: IS_AUTHENTICATED_FULLY }
 
 when@test:
     security:

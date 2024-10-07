@@ -26,18 +26,16 @@ class CustomAuthenticationSuccessHandler implements AuthenticationSuccessHandler
         $user = $token->getUser();
         $session = $request->getSession();
         if ($user->isEnabled()) {
-            if (!$user->getResetPasswordToken()) {
-                $uniqueToken = $this->tokenGenerator->generateToken();
-                $user->setResetPasswordToken($uniqueToken);
-                $session->set('uniqueToken', $uniqueToken);
-                $this->entityManager->persist($user);
-                $this->entityManager->flush();
-                return new RedirectResponse($this->router->generate('set_password'));
-            }
-            if (!$user->getTotpToken()) {
-                return new RedirectResponse($this->router->generate('qr_code_generate'));
-            }
-            return new RedirectResponse($this->router->generate('app_welcome'));
+            if($user->isEnforceResetPassword() && $user->isEnforceTotpAuth() ){
+                if ($user->getResetPasswordToken() == null) {
+                    return new RedirectResponse($this->router->generate('set_password'));
+                }
+                if ($user->getTotpToken()) {
+                    return new RedirectResponse($this->router->generate('qr_code_generate'));
+                }
+            }else{
+                    return new RedirectResponse($this->router->generate('app_welcome'));
+                }
         }
         return new RedirectResponse($this->router->generate('app_login'));
     }

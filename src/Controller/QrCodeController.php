@@ -4,16 +4,6 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-// use Endroid\QrCode\Builder\Builder;
-// use Endroid\QrCode\Encoding\Encoding;
-// use Endroid\QrCode\ErrorCorrectionLevel\ErrorCorrectionLevelHigh;
-// use Endroid\QrCode\RoundBlockSizeMode\RoundBlockSizeModeMargin;
-// use Endroid\QrCode\Writer\PngWriter;
-// use Scheb\TwoFactorBundle\Model\Google\TwoFactorInterface as GoogleAuthenticatorTwoFactorInterface;
-// use Scheb\TwoFactorBundle\Model\Totp\TwoFactorInterface as TotpTwoFactorInterface;
-// use Scheb\TwoFactorBundle\Security\TwoFactor\Provider\Google\GoogleAuthenticatorInterface;
-// use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-// use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use App\Entity\User;
 use Scheb\TwoFactorBundle\Security\TwoFactor\Provider\Totp\TotpAuthenticatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -38,21 +28,18 @@ class QrCodeController extends AbstractController
         $user = $this->getUser();
         $session = $request->getSession();
         if ($user instanceof User) {
-            if($user->getTotpToken() === null){
+             if($session->get('totpToken') == null){
                 $totpToken = $this->totpAuthenticatorInterface->generateSecret();
-                $session->set('totpToken',$totpToken);
                 $user->setTotpToken($totpToken);
-                $this->entityManager->persist($user);
-                $this->entityManager->flush();
+                $session->set('totpToken',$totpToken);
             } else{
-               $totpToken = $session->get('totpToken');
+                $totpToken = $session->get('totpToken');
+                $user->setTotpToken($totpToken);
             }
             $qrCodeContent = $this->totpAuthenticatorInterface->getQRContent($user);
-
             $result = $this->builderInterface
                 ->data($qrCodeContent)
                 ->build();
-            // dd($result);
             $qrCodeBase64 = base64_encode($result->getString());
 
             return $this->render('2fa/qr_code.html.twig', [
@@ -68,22 +55,25 @@ class QrCodeController extends AbstractController
     {
         $user = $this->getUser();
         $session = $request->getSession();
-        // if($user instanceof User){
             $code = (string) $request->request->get('authCode');
             $totpToken = $session->get('totpToken');
-            // dd($user);
-            // dd($totpToken);
-            // $user->setTotpToken($totpToken);
+            $user->setTotpToken($totpToken);
             $isAuthenticate = $this->totpAuthenticatorInterface->checkCode($user, $code);
-            // dd($totpToken);
             
             if ($isAuthenticate) {
                 $hashPassword = $session->get('hashPassword');
                 $user->setPassword($hashPassword);
-                // $user->setTotpToken(null);
+                $user->setResetPasswordToken(null);
                 $user->setCreatedAt(new \DateTimeImmutable());
-                $session->remove('totpSecret');
+                $user->setTotpToken($totpToken);
+                $user->setEnforceResetPassword(false);
+                $user->setEnforceTotpAuth(false);
+                // dd($user);
+
+                $session->remove('totpToken');
                 $session->remove('hashPassword');
+                $session->set('enforceResetPassword',false);
+                $session->set('enforceTotpToken',false);
 
                 $this->entityManager->persist($user);
                 $this->entityManager->flush();
@@ -92,7 +82,5 @@ class QrCodeController extends AbstractController
             else{
                 return $this->render('2fa/verify.html.twig');
             }
-        // }
-        // return $this->redirectToRoute('app_login');
     }
 }
